@@ -1,24 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.c                                           :+:      :+:    :+:   */
+/*   server_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sbakhit <sbakhit@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/29 10:57:58 by sbakhit           #+#    #+#             */
-/*   Updated: 2024/04/29 21:31:18 by sbakhit          ###   ########.fr       */
+/*   Created: 2024/04/29 21:41:14 by sbakhit           #+#    #+#             */
+/*   Updated: 2024/04/29 21:45:17 by sbakhit          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
+
 #include <stdio.h>
 
-void sigusr_handler(int sig)
+void	sigusr_handler(int sig, siginfo_t *info, void *context)
 {
 	static int	i;
 	static int	c;
 	char		cp;
-	
+
+	(void) context;
 	if (!i)
 	{
 		i = 8;
@@ -30,22 +32,26 @@ void sigusr_handler(int sig)
 	{
 		cp = c + 0;
 		write(1, &cp, 1);
+		if (c == '\0')
+			kill(info -> si_pid, SIGUSR1);
 	}
 	i--;
 }
- 
+
 int	main(void)
 {
-	int pid;
-	struct sigaction sa;
+	struct sigaction	sa;
+	pid_t				pid;
 
-	pid = getpid();
-	sa.sa_handler = &sigusr_handler;
+	sa.sa_sigaction = &sigusr_handler;
 	sa.sa_flags = SA_SIGINFO;
-	printf("PID: %d\n", pid);
+	pid = getpid();
+	ft_putnbr_fd(pid, 1);
+	write(1, "\n", 1);
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
+	{
 		pause();
-	return (0);
+	}
 }
