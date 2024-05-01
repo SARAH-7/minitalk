@@ -6,19 +6,18 @@
 /*   By: sbakhit <sbakhit@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/29 21:42:14 by sbakhit           #+#    #+#             */
-/*   Updated: 2024/04/29 21:48:42 by sbakhit          ###   ########.fr       */
+/*   Updated: 2024/04/30 22:00:32 by sbakhit          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
-#include <stdio.h>
-
 
 static void	recieve_handler(int sig)
 {
 	if (sig)
-		ft_printf("recieved\n", 10);
+		ft_printf("recieved\n");
 }
+
 static void	send_signal(int pid, char c)
 {
 	int	i;
@@ -33,10 +32,10 @@ static void	send_signal(int pid, char c)
 			return_kill = kill(pid, SIGUSR1);
 		if (return_kill == -1)
 		{
-			printf("Error! Wrong Pid\n");
+			ft_printf("Error!\n");
 			exit(1);
 		}
-		usleep(42);
+		usleep(500);
 	}
 }
 
@@ -56,30 +55,23 @@ static int	check(char *str)
 
 int	main(int ac, char **av)
 {
-	int	i;
+	int					i;
 	struct sigaction	sa1;
 
 	i = 0;
 	sa1.sa_handler = &recieve_handler;
 	sigaction(SIGUSR1, &sa1, NULL);
-	if (ac == 3)
+	if (ac != 3)
 	{
-		if (check(av[1]) || ft_atoi(av[1]) <= 0 || ft_atoi(av[1]) > INT_MAX)
-		{
-			printf("Error! Unacceptable PID\n", 10);
-			exit(EXIT_FAILURE);
-		}
-		while (av[2][i])
-		{
-			send_signal(atoi(av[1]), av[2][i]);
-			i++;
-		}
-		send_signal (atoi(av[1]), '\0');
-	}
-	else
-	{
-		printf("Error! Less than 3 Args\n");
+		ft_printf("Error! Less or More than 3 Args\n");
 		exit(EXIT_FAILURE);
 	}
-	return (0);
+	if (check(av[1]) || ft_atoi(av[1]) <= 0 || ft_atoi(av[1]) > INT_MAX)
+	{
+		ft_printf("Error! Unacceptable PID\n");
+		exit(EXIT_FAILURE);
+	}
+	while (av[2][i])
+		send_signal(ft_atoi(av[1]), av[2][i++]);
+	send_signal (ft_atoi(av[1]), '\0');
 }

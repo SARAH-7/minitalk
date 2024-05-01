@@ -6,31 +6,30 @@
 /*   By: sbakhit <sbakhit@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/29 10:57:49 by sbakhit           #+#    #+#             */
-/*   Updated: 2024/04/29 21:53:23 by sbakhit          ###   ########.fr       */
+/*   Updated: 2024/04/30 21:56:58 by sbakhit          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
-#include <stdio.h>
 
 static void	send_signal(int pid, char c)
 {
 	int	i;
-	int	return_kill;
+	int	bit;
 
 	i = 8;
 	while (i--)
 	{
 		if (c & 1 << i)
-			return_kill = kill(pid, SIGUSR2);
+			bit = kill(pid, SIGUSR2);
 		else
-			return_kill = kill(pid, SIGUSR1);
-		if (return_kill == -1)
+			bit = kill(pid, SIGUSR1);
+		if (bit == -1)
 		{
-			ft_printf("Error! Wrong Pid\n");
+			ft_printf("Error!\n");
 			exit(1);
 		}
-		usleep(42);
+		usleep(500);
 	}
 }
 
@@ -53,67 +52,18 @@ int	main(int ac, char **av)
 	int	i;
 
 	i = 0;
-	if (ac == 3)
+	if (ac != 3)
 	{
-		if (check(av[1]) || ft_atoi(av[1]) <= 0 || ft_atoi(av[1]) > INT_MAX)
-		{
-			printf("Error! Unacceptable PID\n");
-			exit(EXIT_FAILURE);
-		}
-		while (av[2][i])
-		{
-			send_signal(atoi(av[1]), av[2][i]);
-			i++;
-		}
-		send_signal (atoi(av[1]), '\0');
-	}
-	else
-	{
-		printf("Error! Less than 3 Args\n");
+		ft_printf("Error! Less or More than 3 Args\n");
 		exit(EXIT_FAILURE);
 	}
+	if (check(av[1]) || ft_atoi(av[1]) <= 0 || ft_atoi(av[1]) > INT_MAX)
+	{
+		ft_printf("Error! Unacceptable PID\n");
+		exit(EXIT_FAILURE);
+	}
+	while (av[2][i])
+		send_signal(ft_atoi(av[1]), av[2][i++]);
+	send_signal (ft_atoi(av[1]), '\0');
 	return (0);
 }
-
-// void send_signal(int pid, char *str)
-// {
-// 	int i;
-// 	int	bits_counter;
-// 	int	bit;
-
-// 	i = 0;
-// 	while (str && str[i] && bits_counter--)
-// 	{
-// 		bits_counter = 0;
-// 		while (bits_counter < 8)
-// 		{
-// 			bit = ((str[i] >> bits_counter) & 1);
-// 			if (bit % 2 == 0)
-// 				kill(pid, SIGUSR2);
-// 			else
-// 				kill(pid, SIGUSR1);
-// 			usleep(42);
-// 			bits_counter++;
-// 		}
-// 		i++;
-// 	}
-// }
-// int	main(int ac, char **av)
-// {
-// 	int		pid;
-// 	char	*str;
-	
-// 	if (ac == 3)
-// 	{
-// 		pid = ft_atoi(av[1]);
-// 		if (!(ft_isdigit(pid)) && pid <= 0)
-// 			write(1, "Wrong PID\n", 10);
-// 		str = av[2];
-// 		send_signal(pid, str);
-// 	}
-// 	else
-// 	{
-// 		printf("Error\n");
-// 		exit(EXIT_FAILURE);
-// 	}
-// }
